@@ -26,19 +26,12 @@ import com.google.android.gms.common.api.Status;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "MainActivity";
-    private static final String KEY_IS_RESOLVING = "is_resolving";
-    private static final String KEY_CREDENTIAL = "key_credential";
-    private static final String KEY_CREDENTIAL_TO_SAVE = "key_credential_to_save";
 
     private static final int RC_SIGN_IN = 1;
     private static final int RC_CREDENTIALS_READ = 2;
     private static final int RC_CREDENTIALS_SAVE = 3;
 
     private GoogleApiClient mGoogleApiClient;
-    private ProgressDialog mProgressDialog;
-    private boolean mIsResolving = false;
-    private Credential mCredential;
-    private Credential mCredentialToSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +46,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         signInButton.setOnClickListener(this);
 
         // Other buttons
-
-        findViewById(R.id.button_google_revoke).setOnClickListener(this);
         findViewById(R.id.button_google_sign_out).setOnClickListener(this);
     }
 
@@ -63,9 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.button_google_sign_in:
                 onGoogleSignInClicked();
-                break;
-            case R.id.button_google_revoke:
-                onGoogleRevokeClicked();
                 break;
             case R.id.button_google_sign_out:
                 onGoogleSignOutClicked();
@@ -117,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             GoogleSignInAccount gsa = gsr.getSignInAccount();
             String status = String.format("Signed in as %s (%s)", gsa.getDisplayName(),
                     gsa.getEmail());
+            Log.d("MainActivity",gsa.getDisplayName()+" "+ gsa.getEmail());
             ((TextView) findViewById(R.id.text_google_status)).setText(status);
 
         } else {
@@ -126,25 +115,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         findViewById(R.id.button_google_sign_in).setEnabled(!isSignedIn);
         findViewById(R.id.button_google_sign_out).setEnabled(isSignedIn);
-        findViewById(R.id.button_google_revoke).setEnabled(isSignedIn);
     }
     private void onGoogleSignInClicked() {
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(intent, RC_SIGN_IN);
     }
 
-    private void onGoogleRevokeClicked() {
-        if (mCredential != null) {
-            Auth.CredentialsApi.delete(mGoogleApiClient, mCredential);
-        }
-        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        handleGoogleSignIn(null);
-                    }
-                });
-    }
 
     private void onGoogleSignOutClicked() {
         Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient);
@@ -156,17 +132,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
     }
-    private void resolveResult(Status status, int requestCode) {
-        if (!mIsResolving) {
-            try {
-                status.startResolutionForResult(MainActivity.this, requestCode);
-                mIsResolving = true;
-            } catch (IntentSender.SendIntentException e) {
-                Log.e(TAG, "Failed to send Credentials intent.", e);
-                mIsResolving = false;
-            }
-        }
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -177,13 +142,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             GoogleSignInResult gsr = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleGoogleSignIn(gsr);
         } else if (requestCode == RC_CREDENTIALS_READ) {
-            mIsResolving = false;
+
             if (resultCode == RESULT_OK) {
                 Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
                // handleCredential(credential);
             }
         } else if (requestCode == RC_CREDENTIALS_SAVE) {
-            mIsResolving = false;
+
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
             } else {

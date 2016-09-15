@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "702170661242",
-    "project_id": "signinexample-f7f9b"
+    "project_number": "561454122317",
+    "project_id": "signinexample-6013c"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:702170661242:android:e13f8f488472b022",
+        "mobilesdk_app_id": "1:561454122317:android:abcc2164d96a5532",
         "android_client_info": {
-          "package_name": "co.edu.udea.examples.siginexample"
+          "package_name": "co.edu.udea.examples.signinexample"
         }
       },
       "oauth_client": [
         {
-          "client_id": "702170661242-n9mpkoep8rbe6ei5919fttvlr6kebm53.apps.googleusercontent.com",
+          "client_id": "561454122317-t1ba5v68p8nb2fbg5774t91b342l18oq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "co.edu.udea.examples.siginexample",
+            "package_name": "co.edu.udea.examples.signinexample",
             "certificate_hash": "B42F33FD78253392EE343B4A2478CCF181B12AED"
           }
         },
         {
-          "client_id": "702170661242-1f7v6qbnudhvutelq41i0kibto6c4tci.apps.googleusercontent.com",
+          "client_id": "561454122317-f58t76i4vul9v16od61rrp452ffufa1v.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDmfrxvi_shBnIwUO8caWez69VaCA0fNGw"
+          "current_key": "AIzaSyAcoFGJ_nQMqbrn8KT6nriBibUhIVSUGjs"
         }
       ],
       "services": {

@@ -36,11 +36,4 @@
                     android:enabled="false"
                     android:text="Sign out" />
 
-                <Button
-                    android:id="@+id/button_google_revoke"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:text="revoke acces" />
-
             </LinearLayout>
