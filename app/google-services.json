@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "702170661242",
+    "project_id": "signinexample-f7f9b"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702170661242:android:e13f8f488472b022",
+        "android_client_info": {
+          "package_name": "co.edu.udea.examples.siginexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "702170661242-n9mpkoep8rbe6ei5919fttvlr6kebm53.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.edu.udea.examples.siginexample",
+            "certificate_hash": "B42F33FD78253392EE343B4A2478CCF181B12AED"
+          }
+        },
+        {
+          "client_id": "702170661242-1f7v6qbnudhvutelq41i0kibto6c4tci.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmfrxvi_shBnIwUO8caWez69VaCA0fNGw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
