@@ -2,6 +2,7 @@ package co.edu.udea.examples.signinexample;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
@@ -154,4 +156,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
     }
+    private void resolveResult(Status status, int requestCode) {
+        if (!mIsResolving) {
+            try {
+                status.startResolutionForResult(MainActivity.this, requestCode);
+                mIsResolving = true;
+            } catch (IntentSender.SendIntentException e) {
+                Log.e(TAG, "Failed to send Credentials intent.", e);
+                mIsResolving = false;
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult:" + requestCode + ":" + resultCode + ":" + data);
+
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult gsr = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleGoogleSignIn(gsr);
+        } else if (requestCode == RC_CREDENTIALS_READ) {
+            mIsResolving = false;
+            if (resultCode == RESULT_OK) {
+                Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
+               // handleCredential(credential);
+            }
+        } else if (requestCode == RC_CREDENTIALS_SAVE) {
+            mIsResolving = false;
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.w(TAG, "Credential save failed.");
+            }
+        }
+    }
+
 }
