@@ -35,5 +35,10 @@
                     android:layout_height="wrap_content"
                     android:enabled="false"
                     android:text="Sign out" />
+                <ImageView
+                    android:src="@drawable/common_full_open_on_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/profile_image"/>
 
             </LinearLayout>

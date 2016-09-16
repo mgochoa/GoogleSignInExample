@@ -3,18 +3,21 @@ package co.edu.udea.examples.signinexample;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.credentials.Credential;
-import com.google.android.gms.auth.api.credentials.IdentityProviders;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
@@ -30,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int RC_SIGN_IN = 1;
     //Es el principal conector para clientes de  Google Services.
     private GoogleApiClient mGoogleApiClient;
+    ImageView mImageView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Other buttons
         findViewById(R.id.button_google_sign_out).setOnClickListener(this);
+        mImageView = (ImageView) findViewById(R.id.profile_image);
     }
 
     //Botones
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
     //Construye el api client segun los servicios que se quieran usar.
     private void buildGoogleApiClient(String accountName) {
         GoogleSignInOptions.Builder gsoBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -81,13 +88,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mGoogleApiClient = builder.build();
     }
+
     //Crea intent que trae el Api de Autenticación y empieza la actividad de loggeo.
     private void onGoogleSignInClicked() {
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(intent, RC_SIGN_IN);
     }
 
-//Ejecuta el metodo de desloggeo con el objeto que maneja los servicios
+    //Ejecuta el metodo de desloggeo con el objeto que maneja los servicios
     private void onGoogleSignOutClicked() {
         Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
@@ -97,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
     }
+
     //Maneja el Sign In
     private void handleGoogleSignIn(GoogleSignInResult gsr) {
         Log.d(TAG, "handleGoogleSignIn:" + (gsr == null ? "null" : gsr.getStatus()));
@@ -118,8 +127,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String personEmail = acct.getEmail();
             String personId = acct.getId();
             Uri personPhoto = acct.getPhotoUrl();*/
-            Log.d("MainActivity",gsa.getDisplayName()+" "+ gsa.getEmail()+gsa.getPhotoUrl().getPath());
+            Log.d("MainActivity", gsa.getDisplayName() + " " + gsa.getEmail() + gsa.getPhotoUrl());
             ((TextView) findViewById(R.id.text_google_status)).setText(status);
+            ImageRequest request = new ImageRequest(gsa.getPhotoUrl().toString(),
+                    new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap bitmap) {
+                            mImageView.setImageBitmap(bitmap);
+                        }
+                    }, 0, 0, null,
+                    new Response.ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            mImageView.setImageResource(R.drawable.common_full_open_on_phone);
+                        }
+                    });
+             // Access the RequestQueue through your singleton class.
+            MySingleton.getInstance(this).addToRequestQueue(request);
 
         } else {
             // Display signed-out UI
@@ -130,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button_google_sign_out).setEnabled(isSignedIn);
     }
 
-//Manejo de el activity Result creado por el metodo de Sign In
+    //Manejo de el activity Result creado por el metodo de Sign In
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
