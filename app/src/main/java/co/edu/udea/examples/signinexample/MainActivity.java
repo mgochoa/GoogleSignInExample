@@ -28,9 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
 
     private static final int RC_SIGN_IN = 1;
-    private static final int RC_CREDENTIALS_READ = 2;
-    private static final int RC_CREDENTIALS_SAVE = 3;
-
+    //Es el principal conector para clientes de  Google Services.
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -49,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button_google_sign_out).setOnClickListener(this);
     }
 
+    //Botones
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -61,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+    //Construye el api client segun los servicios que se quieran usar.
     private void buildGoogleApiClient(String accountName) {
         GoogleSignInOptions.Builder gsoBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail();
@@ -70,17 +70,78 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (mGoogleApiClient != null) {
+            //Disconnects the client and stops automatic lifecycle management.
             mGoogleApiClient.stopAutoManage(this);
         }
 
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .enableAutoManage(this, this)
-                .addApi(Auth.CREDENTIALS_API)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gsoBuilder.build());
 
         mGoogleApiClient = builder.build();
     }
+    //Crea intent que trae el Api de Autenticación y empieza la actividad de loggeo.
+    private void onGoogleSignInClicked() {
+        Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(intent, RC_SIGN_IN);
+    }
+
+//Ejecuta el metodo de desloggeo con el objeto que maneja los servicios
+    private void onGoogleSignOutClicked() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        handleGoogleSignIn(null);
+                    }
+                });
+    }
+    //Maneja el Sign In
+    private void handleGoogleSignIn(GoogleSignInResult gsr) {
+        Log.d(TAG, "handleGoogleSignIn:" + (gsr == null ? "null" : gsr.getStatus()));
+            /*Para Gsr
+            Is Success
+            GetStatus
+            GetSignInAccount
+            * */
+        boolean isSignedIn = (gsr != null) && gsr.isSuccess();
+        if (isSignedIn) {
+            // Display signed-in UI
+            GoogleSignInAccount gsa = gsr.getSignInAccount();
+            String status = String.format("Signed in as %s (%s)", gsa.getDisplayName(),
+                    gsa.getEmail());
+            //Mostramos la informacion en consola
+            /*String personName = acct.getDisplayName();
+            String personGivenName = acct.getGivenName();
+            String personFamilyName = acct.getFamilyName();
+            String personEmail = acct.getEmail();
+            String personId = acct.getId();
+            Uri personPhoto = acct.getPhotoUrl();*/
+            Log.d("MainActivity",gsa.getDisplayName()+" "+ gsa.getEmail()+gsa.getPhotoUrl().getPath());
+            ((TextView) findViewById(R.id.text_google_status)).setText(status);
+
+        } else {
+            // Display signed-out UI
+            ((TextView) findViewById(R.id.text_google_status)).setText("Signed out");
+        }
+
+        findViewById(R.id.button_google_sign_in).setEnabled(!isSignedIn);
+        findViewById(R.id.button_google_sign_out).setEnabled(isSignedIn);
+    }
+
+//Manejo de el activity Result creado por el metodo de Sign In
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult:" + requestCode + ":" + resultCode + ":" + data);
+
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult gsr = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleGoogleSignIn(gsr);
+        }
+    }
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -95,66 +156,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-    }
-    private void handleGoogleSignIn(GoogleSignInResult gsr) {
-        Log.d(TAG, "handleGoogleSignIn:" + (gsr == null ? "null" : gsr.getStatus()));
-
-        boolean isSignedIn = (gsr != null) && gsr.isSuccess();
-        if (isSignedIn) {
-            // Display signed-in UI
-            GoogleSignInAccount gsa = gsr.getSignInAccount();
-            String status = String.format("Signed in as %s (%s)", gsa.getDisplayName(),
-                    gsa.getEmail());
-            Log.d("MainActivity",gsa.getDisplayName()+" "+ gsa.getEmail());
-            ((TextView) findViewById(R.id.text_google_status)).setText(status);
-
-        } else {
-            // Display signed-out UI
-            ((TextView) findViewById(R.id.text_google_status)).setText("Signed out");
-        }
-
-        findViewById(R.id.button_google_sign_in).setEnabled(!isSignedIn);
-        findViewById(R.id.button_google_sign_out).setEnabled(isSignedIn);
-    }
-    private void onGoogleSignInClicked() {
-        Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(intent, RC_SIGN_IN);
-    }
-
-
-    private void onGoogleSignOutClicked() {
-        Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient);
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        handleGoogleSignIn(null);
-                    }
-                });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult:" + requestCode + ":" + resultCode + ":" + data);
-
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult gsr = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleGoogleSignIn(gsr);
-        } else if (requestCode == RC_CREDENTIALS_READ) {
-
-            if (resultCode == RESULT_OK) {
-                Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
-               // handleCredential(credential);
-            }
-        } else if (requestCode == RC_CREDENTIALS_SAVE) {
-
-            if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.w(TAG, "Credential save failed.");
-            }
-        }
     }
 
 }
